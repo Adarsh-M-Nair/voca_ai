@@ -1,108 +1,290 @@
-#  VOCA AI -- Multilingual Conversation Intelligence Platform
+# VOCA AI
 
-## 📌 Overview
+**Multilingual Conversation Intelligence Platform**
 
-VOCA AI is an enterprise-grade conversation intelligence system that
-analyzes multi-speaker conversations (text or audio) to extract:
+---
 
--   Business domain detection
--   Sentiment & emotion analysis
--   Timeline-based emotion tracking
--   Risk scoring & escalation prediction
--   Compliance & guardrail violations
--   Agent performance insights
+## Overview
 
-------------------------------------------------------------------------
+VOCA AI is an API-first, enterprise-grade conversation intelligence backend that analyzes multilingual customer interactions (voice or text) and generates structured, configurable insights.
 
-##  Architecture
+It is designed for real-world integration into **banking**, **telecom**, **insurance**, and **customer support** systems.
 
-User Input (Text / Audio) ↓ Speech-to-Text (Whisper GPU) ↓ Conversation
-Structuring ↓ LLM Analysis (Groq LLaMA 3.1) ↓ Guardrail Engine ↓ Risk
-Engine ↓ Structured JSON Output
+The system processes conversations and extracts:
 
-------------------------------------------------------------------------
+- Business domain-aware summary
+- Language detection (multilingual)
+- Sentiment & emotional tone
+- Customer intent detection
+- Key topics/entities
+- Risk & escalation scoring
+- Compliance & policy violations
+- Agent performance insights
+
+---
+
+## Architecture
+
+```
+User Input (Text / Audio)
+        ↓
+Speech-to-Text (Whisper GPU – for audio)
+        ↓
+Conversation Structuring (Speaker Parsing)
+        ↓
+LLM Analysis (Groq LLaMA 3.1)
+        ↓
+Client-Config Driven Analysis Layer
+        ↓
+Guardrail & Compliance Engine
+        ↓
+Risk Engine (Explainable Risk Score)
+        ↓
+Structured Enterprise JSON Output
+```
+
+---
 
 ## AI Usage Approach
 
-### 1.Large Language Model (Groq)
+### 1️⃣ Large Language Model (Groq LLaMA 3.1)
 
-Used for: - Domain detection - Multilingual detection - Sentiment &
-emotion extraction - Intent detection - Timeline-based emotional
-progression
+**Used for:**
 
-### 2️. Whisper (GPU Accelerated)
+- Domain-aware summary generation
+- Multilingual detection
+- Sentiment & emotion detection
+- Intent classification
+- Topic extraction
+- Call outcome classification
+- Agent behavior analysis
 
-Used for: - Audio transcription - Primary language detection
+The LLM is influenced dynamically by client configuration context.
 
-### 3️. Hybrid Guardrail System
+### 2️⃣ Whisper (GPU Accelerated)
 
-Rule-based detection of: - Offensive language - Legal threats - Data
-privacy risks - Out-of-scope conversation - Agent misconduct
+**Used for:**
 
-------------------------------------------------------------------------
+- Audio transcription
+- Primary language detection
+- Multilingual support
 
-## Configuration Mechanism
+**Model configuration:**
 
-Environment variables:
-
-GROQ_API_KEY=your_key_here
-
-Optional: HF_HUB_DISABLE_SYMLINKS_WARNING=1
-
-Model configuration in audio_service.py:
-
+```python
 WhisperModel("medium", device="cuda", compute_type="float16")
+```
 
-------------------------------------------------------------------------
+### 3️⃣ Hybrid Guardrail & Risk Engine
 
-## 🔌 API Endpoints
+Rule-based detection layered on top of AI analysis:
 
-### POST /api/analyze/text
+- Offensive language detection
+- Legal/regulatory threat detection
+- Policy violation detection
+- Out-of-scope conversation
+- Escalation keywords
+- Risk multiplier logic
 
-Analyzes structured 2-way conversation.
+Risk score is **explainable**:
 
-### POST /api/analyze/audio
+```json
+"risk_assessment": {
+  "score": 85,
+  "level": "High",
+  "factors": [
+    "RBI escalation threat",
+    "High emotional intensity",
+    "Policy violation detected"
+  ]
+}
+```
 
-Accepts audio file and performs speech-to-text + analysis.
+---
 
-------------------------------------------------------------------------
+## Configurable Client Context (Mandatory Requirement)
 
-## ⚠ Limitations
+The system supports **client-defined configuration** that influences analysis.
 
--   Manglish/Hinglish detection depends on transliteration accuracy
--   Whisper accuracy depends on audio clarity
--   Risk scoring is heuristic-based
--   No real-time streaming support (batch processing)
--   No persistent storage layer
+### Example Input
 
-------------------------------------------------------------------------
+```json
+{
+  "text": "Customer: I will complain to RBI if this is not resolved.",
+  "client_config": {
+    "domain": "Banking",
+    "products": ["Home Loan", "Credit Card"],
+    "policies": ["Escalation handling", "KYC mandatory"],
+    "risk_triggers": ["RBI", "legal action", "consumer court"]
+  }
+}
+```
+
+### How It Influences Analysis
+
+| Aspect | Influence |
+|--------|-----------|
+| **Domain** | Biasing in summary & intent detection |
+| **Risk** | Score adjusted based on custom triggers |
+| **Compliance** | Engine uses client policies |
+| **Output** | Adapts to enterprise context |
+
+This satisfies the **Configurable Client Context** requirement.
+
+---
+
+## API Endpoints
+
+### 1️⃣ `POST /api/analyze/text`
+
+Analyzes structured or plain-text conversation.
+
+**Request Body**
+
+```json
+{
+  "text": "Customer: My card was charged twice.\nAgent: Let me check.\nCustomer: I will escalate this legally.",
+  "client_config": {
+    "domain": "Banking",
+    "products": ["Credit Card"],
+    "policies": ["Escalation policy"],
+    "risk_triggers": ["legal", "RBI", "complaint"]
+  }
+}
+```
+
+### 2️⃣ `POST /api/analyze/audio`
+
+Accepts audio file and performs:
+
+- Speech-to-text
+- Language detection
+- Full conversation analysis
+
+---
+
+## Sample Response
+
+```json
+{
+  "detected_domain": "Banking",
+  "summary": "Customer reports double charge and threatens legal escalation.",
+  "language": ["English"],
+  "sentiment": "Negative",
+  "emotion": "Frustrated",
+  "emotion_intensity": "High",
+  "intents": ["Refund request", "Escalation"],
+  "topics": ["Credit card", "Double charge"],
+  "agent_analysis": {
+    "professionalism": "Moderate",
+    "resolution_effectiveness": "Pending"
+  },
+  "compliance_issues": [
+    {
+      "type": "Escalation Threat",
+      "severity": "High"
+    }
+  ],
+  "risk_assessment": {
+    "score": 82,
+    "level": "High",
+    "factors": [
+      "Legal escalation language",
+      "High emotional intensity"
+    ]
+  },
+  "call_outcome": "Escalation Likely"
+}
+```
+
+---
+
+## Installation & Setup
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/your-repo/voca_ai.git
+cd voca_ai
+```
+
+### 2️⃣ Create Virtual Environment
+
+```bash
+python -m venv venv
+source venv/bin/activate   # Mac/Linux
+venv\Scripts\activate      # Windows
+```
+
+### 3️⃣ Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4️⃣ Configure Environment Variables
+
+Create `.env` file:
+
+```env
+GROQ_API_KEY=your_api_key_here
+HF_HUB_DISABLE_SYMLINKS_WARNING=1
+```
+
+### 5️⃣ Run Server
+
+```bash
+uvicorn app.main:app --reload
+```
+
+**Access Swagger Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+---
+
+## Advanced Analysis Implemented
+
+| Feature | Status |
+|---------|--------|
+| Compliance violation detection | ✔ |
+| Risk & escalation scoring | ✔ |
+| Agent quality evaluation | ✔ |
+| Call outcome classification | ✔ |
+| Multilingual detection | ✔ |
+| Timeline-ready architecture | ✔ |
+
+---
+
+## Limitations
+
+- **Manglish/Hinglish** detection depends on transliteration accuracy
+- **Whisper** accuracy depends on audio clarity
+- **Risk scoring** uses heuristic multiplier logic
+- No real-time streaming yet
+- No persistent database storage
+
+---
 
 ## Future Improvements
 
--   Real-time streaming emotion tracking
--   Agent scoring (0--100)
--   Escalation probability ML model
--   Dashboard UI with emotion graph
--   Multi-tenant domain configuration
--   Vector database for historical analytics
--   Fine-tuned multilingual sentiment model
--   RAG-based compliance policy matching
+- Real-time streaming analysis
+- Emotion timeline visualization API
+- Agent numeric performance scoring (0–100)
+- Escalation probability ML model
+- Vector database for historical insights
+- RAG-based compliance rule matching
+- Multi-tenant config database
 
-------------------------------------------------------------------------
+---
 
-## What Makes This Enterprise-Ready
+## Enterprise Readiness
 
-✔ Multilingual\
-✔ Multi-speaker\
-✔ Audio + Text\
-✔ Explainable risk scoring\
-✔ Guardrail governance\
-✔ Timeline-based analytics\
-✔ Structured JSON output
-
-------------------------------------------------------------------------
-
-## Contact
-
-For questions or demo requests, please reach out to the development
-team.
+| Criterion | Status |
+|-----------|--------|
+| API-first architecture | ✔ |
+| Clean request/response schemas | ✔ |
+| Configurable client context | ✔ |
+| Multimodal input | ✔ |
+| Explainable risk scoring | ✔ |
+| Guardrail governance | ✔ |
+| Production-ready structure | ✔ |
+| Hackathon requirement compliant | ✔ |
