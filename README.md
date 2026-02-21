@@ -167,7 +167,6 @@ Accepts audio file and performs:
 
 ```json
 {
-  "detected_domain": "Banking",
   "summary": "Customer reports double charge and threatens legal escalation.",
   "language": ["English"],
   "sentiment": "Negative",
@@ -238,19 +237,6 @@ uvicorn app.main:app --reload
 ```
 
 **Access Swagger Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
----
-
-## Advanced Analysis Implemented
-
-| Feature | Status |
-|---------|--------|
-| Compliance violation detection | ✔ |
-| Risk & escalation scoring | ✔ |
-| Agent quality evaluation | ✔ |
-| Call outcome classification | ✔ |
-| Multilingual detection | ✔ |
-| Timeline-ready architecture | ✔ |
 
 ---
 
